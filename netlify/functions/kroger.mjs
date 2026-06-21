@@ -8,6 +8,7 @@ let _expiresAt = 0;
 async function getToken() {
   if (_token && Date.now() < _expiresAt) return _token;
 
+  console.log(`[auth] clientId=${CLIENT_ID} secretLen=${CLIENT_SECRET?.length} secretStart=${CLIENT_SECRET?.slice(0,6)}`);
   const encoded = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString("base64");
   const res = await fetch(`${KROGER_BASE}/connect/oauth2/token`, {
     method: "POST",
@@ -15,7 +16,7 @@ async function getToken() {
       "Content-Type": "application/x-www-form-urlencoded",
       Authorization: `Basic ${encoded}`,
     },
-    body: "grant_type=client_credentials&scope=product.compact",
+    body: "grant_type=client_credentials",
   });
 
   if (!res.ok) {
