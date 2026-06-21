@@ -145,18 +145,22 @@ export async function krogerFetchDeals(locationId = null) {
         );
         for (const p of data?.data ?? []) {
           const item = p.items?.[0];
-          if (!item?.price?.promo || seen.has(p.productId)) continue;
+          if (seen.has(p.productId)) continue;
+          const regPrice = item?.price?.regular ?? null;
+          const promoPrice = item?.price?.promo ?? null;
+          if (!regPrice && !promoPrice) continue;
           seen.add(p.productId);
           results.push({
             id:        p.productId,
             name:      p.description,
             category,
             storeId:   "kroger",
-            salePrice: item.price.promo,
-            regPrice:  item.price.regular ?? item.price.promo,
+            salePrice: promoPrice ?? regPrice,
+            regPrice:  regPrice ?? promoPrice,
+            onSale:    !!promoPrice && promoPrice < regPrice,
             image:     pickImage(p.images),
-            unitLabel: item.soldBy ?? "each",
-            size:      item.size ?? null,
+            unitLabel: item?.soldBy ?? "each",
+            size:      item?.size ?? null,
             sponsored: false,
             coupon:    false,
             emoji,
@@ -166,5 +170,5 @@ export async function krogerFetchDeals(locationId = null) {
     })
   );
 
-  return results.sort((a, b) => (b.regPrice - b.salePrice) - (a.regPrice - a.salePrice));
+  return results.sort((a, b) => (b.onSale ? 1 : 0) - (a.onSale ? 1 : 0) || (b.regPrice - b.salePrice) - (a.regPrice - a.salePrice));
 }
