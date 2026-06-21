@@ -148,16 +148,15 @@ export async function krogerFetchDeals(locationId = null) {
           if (seen.has(p.productId)) continue;
           const regPrice = item?.price?.regular ?? null;
           const promoPrice = item?.price?.promo ?? null;
-          if (!regPrice && !promoPrice) continue;
           seen.add(p.productId);
           results.push({
             id:        p.productId,
             name:      p.description,
             category,
             storeId:   "kroger",
-            salePrice: promoPrice ?? regPrice,
-            regPrice:  regPrice ?? promoPrice,
-            onSale:    !!promoPrice && promoPrice < regPrice,
+            salePrice: promoPrice ?? regPrice ?? 0,
+            regPrice:  regPrice ?? promoPrice ?? 0,
+            onSale:    !!promoPrice && !!regPrice && promoPrice < regPrice,
             image:     pickImage(p.images),
             unitLabel: item?.soldBy ?? "each",
             size:      item?.size ?? null,

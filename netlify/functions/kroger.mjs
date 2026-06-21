@@ -56,6 +56,9 @@ export const handler = async (event) => {
     });
 
     const data = await krogerRes.json();
+    const count = data?.data?.length ?? "n/a";
+    const sample = data?.data?.[0];
+    console.log(`[kroger] ${url} → ${krogerRes.status}, items=${count}, first=${sample?.description ?? "none"}, price=${sample?.items?.[0]?.price?.regular ?? "no-price"}`);
     return { statusCode: krogerRes.status, headers, body: JSON.stringify(data) };
   } catch (err) {
     return {
